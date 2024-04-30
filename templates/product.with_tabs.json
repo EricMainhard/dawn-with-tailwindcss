@@ -120,12 +120,6 @@
     "main_product_tabs_M8QV6V": {
       "type": "main-product-tabs",
       "blocks": {
-        "product_desc_nhgBNP": {
-          "type": "product_desc",
-          "settings": {
-            "title": "Product description"
-          }
-        },
         "key_features_fGHf7m": {
           "type": "key_features",
           "settings": {
@@ -147,13 +141,19 @@
             "empty_message": "There's nothing here",
             "limit": 5
           }
+        },
+        "product_desc_CXFjRx": {
+          "type": "product_desc",
+          "settings": {
+            "title": "Product description"
+          }
         }
       },
       "block_order": [
-        "product_desc_nhgBNP",
         "key_features_fGHf7m",
         "shipping_info_DFQhUM",
-        "package_items_qYBByR"
+        "package_items_qYBByR",
+        "product_desc_CXFjRx"
       ],
       "settings": {
         "section_title": "More about our awesome product"

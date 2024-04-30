@@ -4,7 +4,7 @@
     assign description = product.description
     assign key_features = section.blocks | where: 'type', 'key_features' | first
     assign key_features--key = key_features.settings.metafield_key
-    assign key_features = product.metafields.custom[key_features--key] | split: ') '
+    assign key_features--content = product.metafields.custom[key_features--key] | split: 'bullet:'
     assign shipping_info = section.blocks | where: 'type', 'shipping_info' | first
     assign shipping_info--content = shipping_info.settings.content
     assign package_items = section.blocks | where: 'type', 'package_items' | first
@@ -34,7 +34,7 @@
                         </button>
                     {% endif %}
                 {% when 'shipping_info' %}
-                    {% if shipping_info--content %}
+                    {% if shipping_info--content != blank %}
                         <button class="tablink" onclick="openTab('shipping', this)">
                             {{ block.settings.title }}
                         </button>
@@ -46,17 +46,24 @@
             {% endcase %}
         {% endfor %}
 
-        <div id="description">
-            {{ description }}
-        </div>
-        <div id="features">
-            {% for feature in key_features %}
-                {{ feature }}
-            {% endfor %}
-        </div>
-        <div id="shipping">
-            {{ shipping_info--content }}
-        </div>
+        {% if description != blank %}
+            <div id="description">
+                {{ description }}
+            </div>
+        {% endif %}
+        {% if key_features--content != blank %}
+            <div id="features">
+                {{ key_features--content }}
+                {% for feature in key_features %}
+                    {{ feature }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if shipping_info--content != blank %}
+            <div id="shipping">
+                {{ shipping_info--content }}
+            </div>
+        {% endif %}
         <div id="package">
             <h4>
                 {{ package_empty_msg }}
@@ -143,7 +150,7 @@
                     "type": "text",
                     "id": "title",
                     "label": "Title",
-                    "default": "Product description"
+                    "default": "Items included in Package"
                 },
                 {
                     "type": "text",

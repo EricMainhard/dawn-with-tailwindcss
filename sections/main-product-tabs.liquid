@@ -1,6 +1,81 @@
+{% liquid
+
+    assign section_title = section.settings.section_title
+    assign description = product.description
+    assign key_features = section.blocks | where: 'type', 'key_features' | first
+    assign key_features--key = key_features.settings.metafield_key
+    assign key_features = product.metafields.custom[key_features--key] | split: ') '
+    assign shipping_info = section.blocks | where: 'type', 'shipping_info' | first
+    assign shipping_info--content = shipping_info.settings.content
+    assign package_items = section.blocks | where: 'type', 'package_items' | first
+    assign package_empty_msg = package_items.settings.empty_message
+%}
+
+<div class="main-product-tabs bg-red">
+    
+    {% if section_title %}
+        <h2>{{ section_title }}</h2>
+    {% endif %}
+
+    <div class="main-product-tabs__tabs">
+
+        {% for block in section.blocks %}
+            {% case block.type %}
+                {% when 'product_desc' %}
+                    {% if description %}
+                        <button class="tablink" onclick="openTab('description', this)" id="defaultOpen">
+                            {{ block.settings.title }}
+                        </button>
+                    {% endif %}
+                {% when 'key_features' %}
+                    {% if product.metafields.custom[key_features--key] %}
+                        <button class="tablink" onclick="openTab('features', this)">
+                            {{ block.settings.title }}
+                        </button>
+                    {% endif %}
+                {% when 'shipping_info' %}
+                    {% if shipping_info--content %}
+                        <button class="tablink" onclick="openTab('shipping', this)">
+                            {{ block.settings.title }}
+                        </button>
+                    {% endif %}
+                {% when 'package_items' %}
+                    <button class="tablink" onclick="openTab('package', this)">
+                        {{ block.settings.title }}
+                    </button>
+            {% endcase %}
+        {% endfor %}
+
+        <div id="description">
+            {{ description }}
+        </div>
+        <div id="features">
+            {% for feature in key_features %}
+                {{ feature }}
+            {% endfor %}
+        </div>
+        <div id="shipping">
+            {{ shipping_info--content }}
+        </div>
+        <div id="package">
+            <h4>
+                {{ package_empty_msg }}
+            </h4>
+            <button class="package__fetch-button">Get Data now</button>
+        </div>
+        
+    </div>
+
+</div>
+
 {% schema %}
 {
     "name": "Main product tabs",
+    "tag": "section",
+    "class": "section page-width",
+    "disabled_on": {
+        "groups": ["header", "footer"]
+    },
     "settings": [
         {
             "type": "text",
@@ -77,12 +152,21 @@
                     "default": "There's nothing here"
                 },
                 {
-                    "type": "number",
+                    "type": "range",
                     "id": "limit",
                     "label": "Cards limit",
+                    "min": 3,
+                    "max": 10,
+                    "step": 1,
                     "default": 5
                 }
             ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Main product tabs",
+            "category": "Product page"
         }
     ]
 }

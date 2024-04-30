@@ -1,0 +1,89 @@
+{% schema %}
+{
+    "name": "Main product tabs",
+    "settings": [
+        {
+            "type": "text",
+            "id": "section_title",
+            "label": "Section title"
+        }
+    ],
+    "blocks": [
+        {
+            "type": "product_desc",
+            "name": "Product description",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Product description"
+                }
+            ]
+        },
+        {
+            "type": "key_features",
+            "name": "Key Features",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Key Features"
+                },
+                {
+                    "type": "text",
+                    "id": "metafield_key",
+                    "label": "Metafield key",
+                    "default": "key_features"
+                }
+            ]
+        },
+        {
+            "type": "shipping_info",
+            "name": "Shipping info",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Shipping info"
+                },
+                {
+                    "type": "richtext",
+                    "id": "content",
+                    "label": "Content"
+                }
+            ]
+        },
+        {
+            "type": "package_items",
+            "name": "Items included in Package",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Product description"
+                },
+                {
+                    "type": "text",
+                    "id": "empty_message",
+                    "label": "Empty message",
+                    "default": "There's nothing here"
+                },
+                {
+                    "type": "number",
+                    "id": "limit",
+                    "label": "Cards limit",
+                    "default": 5
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

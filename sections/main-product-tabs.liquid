@@ -85,9 +85,9 @@
         {% if key_features--content != blank %}
             <ul class="main-product-tabs__single" id="features">
                 {% for feature in key_features--content %}
-                <li>
-                    {{ feature }}
-                </li>    
+                    {% if feature != blank %}
+                        <li>{{ feature }}</li>
+                    {% endif %}    
                 {% endfor %}
             </ul>
         {% endif %}

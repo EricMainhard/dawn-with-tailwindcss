@@ -4,12 +4,43 @@
     assign description = product.description
     assign key_features = section.blocks | where: 'type', 'key_features' | first
     assign key_features--key = key_features.settings.metafield_key
-    assign key_features--content = product.metafields.custom[key_features--key] | split: 'bullet:'
+    assign key_features--content = product.metafields.custom[key_features--key]
+    assign key_features--content = key_features--content | split: 'bullet:'
     assign shipping_info = section.blocks | where: 'type', 'shipping_info' | first
     assign shipping_info--content = shipping_info.settings.content
     assign package_items = section.blocks | where: 'type', 'package_items' | first
     assign package_empty_msg = package_items.settings.empty_message
 %}
+
+<style>
+    .main-product-tabs__tabs .tablink{
+        background-color: #cacaca;
+    }
+    .main-product-tabs__tabs .active {
+        background-color: #fff;
+        border-bottom: none;
+        position: relative;
+    }
+    .main-product-tabs__tabs .active::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        height: 1px;
+        background: white;
+        left: 0;
+        right: 0;
+    }
+    .main-product-tabs__content .main-product-tabs__single {
+        opacity: 0;
+        visibility: hidden;
+        transition: .3s ease-in-out;
+    }
+    .main-product-tabs__content .main-product-tabs__single.active {
+        opacity: 1;
+        visibility: visible;
+        transition: .3s ease-in-out;
+    }
+</style>
 
 <div class="main-product-tabs bg-red">
     
@@ -18,62 +49,76 @@
     {% endif %}
 
     <div class="main-product-tabs__tabs">
-
         {% for block in section.blocks %}
             {% case block.type %}
                 {% when 'product_desc' %}
                     {% if description %}
-                        <button class="tablink" onclick="openTab('description', this)" id="defaultOpen">
+                        <button class="tablink border p-2" onclick="openTab('description', this)">
                             {{ block.settings.title }}
                         </button>
                     {% endif %}
                 {% when 'key_features' %}
                     {% if product.metafields.custom[key_features--key] %}
-                        <button class="tablink" onclick="openTab('features', this)">
+                        <button class="tablink border p-2" onclick="openTab('features', this)">
                             {{ block.settings.title }}
                         </button>
                     {% endif %}
                 {% when 'shipping_info' %}
                     {% if shipping_info--content != blank %}
-                        <button class="tablink" onclick="openTab('shipping', this)">
+                        <button class="tablink border p-2" onclick="openTab('shipping', this)">
                             {{ block.settings.title }}
                         </button>
                     {% endif %}
                 {% when 'package_items' %}
-                    <button class="tablink" onclick="openTab('package', this)">
+                    <button class="tablink border p-2" onclick="openTab('package', this)">
                         {{ block.settings.title }}
                     </button>
             {% endcase %}
         {% endfor %}
-
+    </div>
+    <div class="main-product-tabs__content border p-2">
         {% if description != blank %}
-            <div id="description">
+            <div class="main-product-tabs__single" id="description">
                 {{ description }}
             </div>
         {% endif %}
         {% if key_features--content != blank %}
-            <div id="features">
-                {{ key_features--content }}
-                {% for feature in key_features %}
+            <ul class="main-product-tabs__single" id="features">
+                {% for feature in key_features--content %}
+                <li>
                     {{ feature }}
+                </li>    
                 {% endfor %}
-            </div>
+            </ul>
         {% endif %}
         {% if shipping_info--content != blank %}
-            <div id="shipping">
+            <div class="main-product-tabs__single" id="shipping">
                 {{ shipping_info--content }}
             </div>
         {% endif %}
-        <div id="package">
+        <div class="main-product-tabs__single" id="package">
             <h4>
                 {{ package_empty_msg }}
             </h4>
             <button class="package__fetch-button">Get Data now</button>
         </div>
-        
     </div>
-
+        
 </div>
+
+<script>
+    let tabs = [...document.querySelectorAll('.main-product-tabs__tabs .tablink')];
+    let tabsContents = [...document.querySelectorAll('.main-product-tabs__content .main-product-tabs__single')];
+    
+    if (tabs) tabs[0].click();
+
+    function openTab(id, tab){
+        tabs.forEach(tab => tab.classList.remove('active'));
+        tab.classList.add('active');
+        tabsContents.forEach(content => content.classList.remove('active'));
+        tabsContents.find(content => content.id === id).classList.add('active');
+    }
+</script>
 
 {% schema %}
 {

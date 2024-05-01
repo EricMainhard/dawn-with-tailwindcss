@@ -120,6 +120,12 @@
     "main_product_tabs_M8QV6V": {
       "type": "main-product-tabs",
       "blocks": {
+        "product_desc_EwpBRV": {
+          "type": "product_desc",
+          "settings": {
+            "title": "Product description"
+          }
+        },
         "key_features_fGHf7m": {
           "type": "key_features",
           "settings": {
@@ -131,29 +137,23 @@
           "type": "shipping_info",
           "settings": {
             "title": "Shipping info",
-            "content": ""
+            "content": "<p>Shipping 1 -3 days<\/p>"
           }
         },
         "package_items_qYBByR": {
           "type": "package_items",
           "settings": {
-            "title": "Product description",
+            "title": "Items included in Package",
             "empty_message": "There's nothing here",
             "limit": 5
-          }
-        },
-        "product_desc_CXFjRx": {
-          "type": "product_desc",
-          "settings": {
-            "title": "Product description"
           }
         }
       },
       "block_order": [
+        "product_desc_EwpBRV",
         "key_features_fGHf7m",
         "shipping_info_DFQhUM",
-        "package_items_qYBByR",
-        "product_desc_CXFjRx"
+        "package_items_qYBByR"
       ],
       "settings": {
         "section_title": "More about our awesome product"

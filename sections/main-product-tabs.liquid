@@ -10,12 +10,10 @@
     assign shipping_info--content = shipping_info.settings.content
     assign package_items = section.blocks | where: 'type', 'package_items' | first
     assign package_empty_msg = package_items.settings.empty_message
+    assign package_items_limit = package_items.settings.limit
 %}
 
 <style>
-    .main-product-tabs__tabs .tablink{
-        background-color: #cacaca;
-    }
     .main-product-tabs__tabs .active {
         background-color: #fff;
         border-bottom: none;
@@ -31,46 +29,68 @@
         right: 0;
     }
     .main-product-tabs__content .main-product-tabs__single {
-        opacity: 0;
-        visibility: hidden;
-        transition: .3s ease-in-out;
+        display: none;
+        transition: all .3s ease-in-out;
+        padding: 1rem;
+        position: relative;
     }
     .main-product-tabs__content .main-product-tabs__single.active {
-        opacity: 1;
-        visibility: visible;
-        transition: .3s ease-in-out;
+        display: block;
+        transition: all .3s ease-in-out;
+    }
+    .main-product-tabs__content ul.main-product-tabs__single{
+        padding-left: 16px;
+        list-style: disc;
+    }
+    .main-product-tabs__single div{
+        white-space: unset;
+    }
+    #cards-container.filled{
+        height: 150px;
+    }
+    #cards-container .card.completed{
+        border-color: rgb(0, 143, 55);
+    }
+    #cards-container .card.pending{
+        border-color: rgb(255, 81, 81);
+    }
+    #cards-container .card.completed .card-status{
+        color: rgb(0, 143, 55);
+    }
+    #cards-container .card.pending .card-status{
+        color: rgb(255, 81, 81);
     }
 </style>
 
 <div class="main-product-tabs bg-red">
     
     {% if section_title %}
-        <h2>{{ section_title }}</h2>
+        <h2 class="text-lg">{{ section_title }}</h2>
     {% endif %}
 
-    <div class="main-product-tabs__tabs">
+    <div class="main-product-tabs__tabs mt-3 flex">
         {% for block in section.blocks %}
             {% case block.type %}
                 {% when 'product_desc' %}
                     {% if description %}
-                        <button class="tablink border p-2" onclick="openTab('description', this)">
+                        <button class="tablink border p-2 border-r-0 bg-[#cacaca]" onclick="openTab('description', this)">
                             {{ block.settings.title }}
                         </button>
                     {% endif %}
                 {% when 'key_features' %}
                     {% if product.metafields.custom[key_features--key] %}
-                        <button class="tablink border p-2" onclick="openTab('features', this)">
+                        <button class="tablink border p-2 border-r-0 bg-[#cacaca]" onclick="openTab('features', this)">
                             {{ block.settings.title }}
                         </button>
                     {% endif %}
                 {% when 'shipping_info' %}
                     {% if shipping_info--content != blank %}
-                        <button class="tablink border p-2" onclick="openTab('shipping', this)">
+                        <button class="tablink border p-2 border-r-0 bg-[#cacaca]" onclick="openTab('shipping', this)">
                             {{ block.settings.title }}
                         </button>
                     {% endif %}
                 {% when 'package_items' %}
-                    <button class="tablink border p-2" onclick="openTab('package', this)">
+                    <button class="tablink border p-2 last:border-r bg-[#cacaca]" onclick="openTab('package', this)">
                         {{ block.settings.title }}
                     </button>
             {% endcase %}
@@ -97,10 +117,36 @@
             </div>
         {% endif %}
         <div class="main-product-tabs__single" id="package">
-            <h4>
-                {{ package_empty_msg }}
-            </h4>
-            <button class="package__fetch-button">Get Data now</button>
+            <div class="package__empty">
+                <h4>
+                    {{ package_empty_msg }}
+                </h4>
+                <button class="package__fetch-button" data-limit="{{ package_items_limit }}">Get Data now</button>
+            </div>
+            <span class="loading-overlay hidden left-1/2">
+                <span class="loading-overlay__spinner">
+                    <svg
+                    aria-hidden="true"
+                    focusable="false"
+                    class="spinner"
+                    viewBox="0 0 66 66"
+                    xmlns="http://www.w3.org/2000/svg"
+                    >
+                    <circle class="path" fill="none" stroke-width="6" cx="33" cy="33" r="30"></circle>
+                    </svg>
+                </span>
+            </span>
+            <div id="cards-container" class="flex items-stretch gap-1">
+                <template id="card-template">
+                    <div class="card justify-between border flex-1 p-2">
+                        <span class="card-index"></span>
+                        <h2 class="card-title"></h2>
+                        <div class="card-info flex gap-1">
+                            <p class="card-status"></p> | <p class="card-user"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
         
@@ -109,14 +155,52 @@
 <script>
     let tabs = [...document.querySelectorAll('.main-product-tabs__tabs .tablink')];
     let tabsContents = [...document.querySelectorAll('.main-product-tabs__content .main-product-tabs__single')];
-    
+    let packageButton = document.querySelector('.package__fetch-button');
+    let packageLimit;
+    let cardsContainer = document.getElementById('cards-container');
+    if (packageButton) packageLimit = packageButton.getAttribute('data-limit');
+
     if (tabs) tabs[0].click();
+    
+    if (packageButton) packageButton.addEventListener('click', fetchCards);
 
     function openTab(id, tab){
         tabs.forEach(tab => tab.classList.remove('active'));
         tab.classList.add('active');
         tabsContents.forEach(content => content.classList.remove('active'));
-        tabsContents.find(content => content.id === id).classList.add('active');
+        let activeContent = tabsContents.find(content => content.id === id);
+        activeContent.classList.add('active');
+    }
+
+    function fetchCards(){
+        let package__empty = document.querySelector('#package .package__empty');
+        let package__loading = document.querySelector('#package .loading-overlay');
+        package__empty.classList.add('hidden');
+        package__loading.classList.remove('hidden');
+        setTimeout(() => {
+            fetch('https://jsonplaceholder.typicode.com/todos')
+            .then(response => response.json())
+            .then(data => {
+                package__loading.classList.add('hidden');
+                packageLimit ? data = data.slice(0, packageLimit) : data;
+                let template = document.getElementById('card-template');
+                let container = document.getElementById('cards-container');
+                data.forEach(item => {
+                    let clone = document.importNode(template.content, true);
+
+                    clone.querySelector('.card-index').textContent = '#' + item.id;
+                    clone.querySelector('.card-title').textContent = item.title;
+                    clone.querySelector('.card-status').textContent = item.completed ? 'COMPLETED' : 'NOT COMPLETED';
+                    clone.querySelector('.card-user').textContent = item.userId;
+                    
+                    let card = clone.querySelector('.card');
+                    item.completed ? card.classList.add('completed') : card.classList.add('pending');
+
+                    container.appendChild(clone);
+                    cardsContainer?.classList.add('filled');
+                });
+            });
+        }, 1000);
     }
 </script>
 

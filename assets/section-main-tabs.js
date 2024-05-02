@@ -11,9 +11,9 @@ if (packageButton) packageButton.addEventListener('click', fetchCards);
 function openTab(id, tab){
     tabs.forEach(tab => tab.classList.remove('active'));
     tab.classList.add('active');
-    tabsContents.forEach(content => content.classList.replace('active, hidden'));
+    tabsContents.forEach(content => content.classList.replace('active', 'hidden'));
     let activeContent = tabsContents.find(content => content.id === id);
-    activeContent.classList.replace('hidden, active');
+    activeContent.classList.replace('hidden', 'active');
 }
 
 function fetchCards(){

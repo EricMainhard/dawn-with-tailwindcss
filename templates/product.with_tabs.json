@@ -146,7 +146,7 @@
           "settings": {
             "title": "Items included in Package",
             "empty_message": "There's nothing here",
-            "limit": 5
+            "limit": 4
           }
         }
       },

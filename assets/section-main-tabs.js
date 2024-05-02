@@ -42,7 +42,7 @@ function fetchCards(){
                 let card = clone.querySelector('.card');
                 item.completed ? card.classList.add('completed') : card.classList.add('pending');
 
-                container.appendChild(clone);
+                cardsContainer?.appendChild(clone);
                 cardsContainer?.classList.add('filled');
             });
         })

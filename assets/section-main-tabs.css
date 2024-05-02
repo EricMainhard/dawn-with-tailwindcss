@@ -1,0 +1,36 @@
+.main-product-tabs__tabs .active {
+    background-color: #fff;
+    border-bottom: none;
+    position: relative;
+}
+.main-product-tabs__tabs .active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    height: 1px;
+    background: white;
+    left: 0;
+    right: 0;
+}
+.main-product-tabs__content .main-product-tabs__single.active {
+    display: block;
+    transition: all .3s ease-in-out;
+}
+.main-product-tabs__single div{
+    white-space: unset;
+}
+#cards-container.filled{
+    height: 150px;
+}
+#cards-container .card.completed{
+    border-color: rgb(0, 143, 55);
+}
+#cards-container .card.pending{
+    border-color: rgb(255, 81, 81);
+}
+#cards-container .card.completed .card-status{
+    color: rgb(0, 143, 55);
+}
+#cards-container .card.pending .card-status{
+    color: rgb(255, 81, 81);
+    }

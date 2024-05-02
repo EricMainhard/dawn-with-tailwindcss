@@ -13,110 +13,62 @@
     assign package_items_limit = package_items.settings.limit
 %}
 
-<style>
-    .main-product-tabs__tabs .active {
-        background-color: #fff;
-        border-bottom: none;
-        position: relative;
-    }
-    .main-product-tabs__tabs .active::after {
-        content: "";
-        position: absolute;
-        bottom: -2px;
-        height: 1px;
-        background: white;
-        left: 0;
-        right: 0;
-    }
-    .main-product-tabs__content .main-product-tabs__single {
-        display: none;
-        transition: all .3s ease-in-out;
-        padding: 1rem;
-        position: relative;
-    }
-    .main-product-tabs__content .main-product-tabs__single.active {
-        display: block;
-        transition: all .3s ease-in-out;
-    }
-    .main-product-tabs__content ul.main-product-tabs__single{
-        padding-left: 16px;
-        list-style: disc;
-    }
-    .main-product-tabs__single div{
-        white-space: unset;
-    }
-    #cards-container.filled{
-        height: 150px;
-    }
-    #cards-container .card.completed{
-        border-color: rgb(0, 143, 55);
-    }
-    #cards-container .card.pending{
-        border-color: rgb(255, 81, 81);
-    }
-    #cards-container .card.completed .card-status{
-        color: rgb(0, 143, 55);
-    }
-    #cards-container .card.pending .card-status{
-        color: rgb(255, 81, 81);
-    }
-</style>
+{{ 'section-main-tabs.css' | asset_url | stylesheet_tag }}
 
-<div class="main-product-tabs bg-red">
-    
-    {% if section_title %}
+<div class="main-product-tabs">
+    {%- if section_title -%}
         <h2 class="text-lg">{{ section_title }}</h2>
-    {% endif %}
-
+    {%- endif -%}
     <div class="main-product-tabs__tabs mt-3 flex">
         {% for block in section.blocks %}
-            {% case block.type %}
-                {% when 'product_desc' %}
-                    {% if description %}
+            {%- assign title = block.settings.title -%}
+            {%- case block.type -%}
+                {%- when 'product_desc' -%}
+                    {%- if description -%}
                         <button class="tablink border p-2 border-r-0 bg-[#cacaca]" onclick="openTab('description', this)">
-                            {{ block.settings.title }}
+                            {{ title }}
                         </button>
-                    {% endif %}
-                {% when 'key_features' %}
-                    {% if product.metafields.custom[key_features--key] %}
+                    {%- endif %}
+                {%- when 'key_features' -%}
+                    {%- if product.metafields.custom[key_features--key] -%}
                         <button class="tablink border p-2 border-r-0 bg-[#cacaca]" onclick="openTab('features', this)">
-                            {{ block.settings.title }}
+                            {{ title }}
                         </button>
-                    {% endif %}
-                {% when 'shipping_info' %}
-                    {% if shipping_info--content != blank %}
+                    {%- endif -%}
+                {%- when 'shipping_info' -%}
+                    {%- if shipping_info--content != blank -%}
                         <button class="tablink border p-2 border-r-0 bg-[#cacaca]" onclick="openTab('shipping', this)">
-                            {{ block.settings.title }}
+                            {{ title }}
                         </button>
-                    {% endif %}
-                {% when 'package_items' %}
+                    {%- endif -%}
+                {%- when 'package_items' -%}
                     <button class="tablink border p-2 last:border-r bg-[#cacaca]" onclick="openTab('package', this)">
-                        {{ block.settings.title }}
+                        {{ title }}
                     </button>
-            {% endcase %}
-        {% endfor %}
+            {%- endcase -%}
+        {%- endfor -%}
     </div>
     <div class="main-product-tabs__content border p-2">
-        {% if description != blank %}
-            <div class="main-product-tabs__single" id="description">
+        {%- if description != blank -%}
+            <div class="main-product-tabs__single hidden p-2 relative" id="description">
                 {{ description }}
             </div>
-        {% endif %}
-        {% if key_features--content != blank %}
-            <ul class="main-product-tabs__single" id="features">
-                {% for feature in key_features--content %}
-                    {% if feature != blank %}
+        {%- endif -%}
+        {%- if key_features--content != blank -%}
+            <ul class="main-product-tabs__single hidden p-2 relative pl-4 list-disc" id="features">
+                {%- for feature in key_features--content -%}
+                    {%- if feature != blank -%}
                         <li>{{ feature }}</li>
-                    {% endif %}    
-                {% endfor %}
+                    {%- endif -%}    
+                {%- endfor -%}
             </ul>
-        {% endif %}
-        {% if shipping_info--content != blank %}
-            <div class="main-product-tabs__single" id="shipping">
+        {%- endif -%}
+        {%- if shipping_info--content != blank -%}
+            <div class="main-product-tabs__single hidden p-2 relative" id="shipping">
                 {{ shipping_info--content }}
             </div>
-        {% endif %}
-        <div class="main-product-tabs__single" id="package">
+        {%- endif -%}
+        <div class="main-product-tabs__single hidden p-2 relative" id="package">
             <div class="package__empty">
                 <h4>
                     {{ package_empty_msg }}
@@ -148,17 +100,15 @@
                 </template>
             </div>
         </div>
-    </div>
-        
+    </div>  
 </div>
 
 <script>
     let tabs = [...document.querySelectorAll('.main-product-tabs__tabs .tablink')];
     let tabsContents = [...document.querySelectorAll('.main-product-tabs__content .main-product-tabs__single')];
     let packageButton = document.querySelector('.package__fetch-button');
-    let packageLimit;
+    let packageLimit = packageButton ? packageButton.getAttribute('data-limit') : null;
     let cardsContainer = document.getElementById('cards-container');
-    if (packageButton) packageLimit = packageButton.getAttribute('data-limit');
 
     if (tabs) tabs[0].click();
     
@@ -175,16 +125,18 @@
     function fetchCards(){
         let package__empty = document.querySelector('#package .package__empty');
         let package__loading = document.querySelector('#package .loading-overlay');
+        let template = document.getElementById('card-template');
+
         package__empty.classList.add('hidden');
         package__loading.classList.remove('hidden');
+
         setTimeout(() => {
             fetch('https://jsonplaceholder.typicode.com/todos')
             .then(response => response.json())
             .then(data => {
                 package__loading.classList.add('hidden');
                 packageLimit ? data = data.slice(0, packageLimit) : data;
-                let template = document.getElementById('card-template');
-                let container = document.getElementById('cards-container');
+
                 data.forEach(item => {
                     let clone = document.importNode(template.content, true);
 
@@ -199,7 +151,8 @@
                     container.appendChild(clone);
                     cardsContainer?.classList.add('filled');
                 });
-            });
+            })
+            .catch(error => console.error(error));
         }, 1000);
     }
 </script>

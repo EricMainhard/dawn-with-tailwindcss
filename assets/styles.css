@@ -741,7 +741,7 @@ video {
   display: grid !important;
 }
 .grid {
-  display: grid;
+  display: flex;
 }
 .inline-grid {
   display: inline-grid;
